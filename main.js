@@ -7,7 +7,15 @@ import {
   getFirestore, doc, setDoc, getDoc, collection, getDocs,
   addDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import firebaseConfig from "./firebase-config.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyDUSA6JbEnf9rZjBICneT7Vzcl9I5mNjQs",
+  authDomain: "ppmp-44f69.firebaseapp.com",
+  projectId: "ppmp-44f69",
+  storageBucket: "ppmp-44f69.firebasestorage.app",
+  messagingSenderId: "955635994099",
+  appId: "1:955635994099:web:63175150dd2bb19a5a5686",
+  measurementId: "G-CPYG1P0R0N"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
