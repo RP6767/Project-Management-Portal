@@ -215,7 +215,7 @@ async function loadDashboard() {
         <div class="recent-task-assignee">${t.assignedName || "Unassigned"}</div>
       </div>
       <span class="recent-task-status">${sLabel(t.status)}</span>
-      ${t.dueDate ? `<span class="recent-task-due" style="color:${t.dueDate < today && t.status !== "done" ? "var(--accent2)" : "var(--muted)"}">Due ${t.dueDate}</span>` : ""}
+      ${t.dueDate ? `<span class="recent-task-due" style="color:${t.dueDate < today && t.status !== "done" ? "var(--danger)" : "var(--text-secondary)"}">Due ${t.dueDate}</span>` : ""}
     </div>`
         )
         .join("")
@@ -332,20 +332,20 @@ async function renderUsers() {
       (u) => `
     <div class="table-row">
       <div style="display:flex;align-items:center;gap:10px;"><div class="mini-avatar" style="width:28px;height:28px;border-radius:7px;font-size:11px;">${u.name.charAt(0)}</div>${u.name}</div>
-      <div style="color:var(--muted);font-size:12px;">${u.email}</div>
+      <div style="color:var(--text-secondary);font-size:12px;">${u.email}</div>
       <div><span class="role-badge role-${u.role}">${u.role}</span></div>
       <div style="display:flex;gap:6px;align-items:center;">
         ${
           currentUserData.role === "superadmin" && u.uid !== currentUser.uid
             ? `
-          <select style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:var(--font-mono);font-size:11px;cursor:pointer;outline:none;" onchange="changeRole('${u.uid}',this.value)">
+          <select style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:inherit;font-size:11px;cursor:pointer;outline:none;" onchange="changeRole('${u.uid}',this.value)">
             <option value="intern" ${u.role === "intern" ? "selected" : ""}>Intern</option>
             <option value="admin" ${u.role === "admin" ? "selected" : ""}>Admin</option>
             <option value="superadmin" ${u.role === "superadmin" ? "selected" : ""}>Super Admin</option>
           </select>
           <div class="icon-btn delete" onclick="removeUser('${u.uid}')">\u{1F5D1}</div>
         `
-            : '<span style="color:var(--muted);font-size:11px;">\u2014</span>'
+            : '<span style="color:var(--text-secondary);font-size:11px;">\u2014</span>'
         }
       </div>
     </div>`
@@ -510,7 +510,7 @@ window.openTaskDetail = async (id) => {
                 <button class="due-date-save-btn" onclick="updateDueDate('${id}')">Save</button>
               </div>`
             : t.dueDate
-              ? `<span style="color:${t.dueDate < today && t.status !== "done" ? "var(--accent2)" : "inherit"}">${t.dueDate}</span>`
+              ? `<span style="color:${t.dueDate < today && t.status !== "done" ? "var(--danger)" : "inherit"}">${t.dueDate}</span>`
               : "\u2014"
         }
       </div>

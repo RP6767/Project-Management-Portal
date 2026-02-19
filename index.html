@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlowBoard — Role-Based Kanban</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Project Management Portal (PMP)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,8 +18,8 @@
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-box">
-    <div class="auth-logo">FlowBoard</div>
-    <div class="auth-subtitle">Role-based Kanban — ppmp project</div>
+    <div class="auth-logo">Project Management Portal</div>
+    <div class="auth-subtitle">Streamlined task management for your team</div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
       <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
@@ -46,7 +46,7 @@
 <div id="app-screen">
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-logo">FlowBoard</div>
+    <div class="sidebar-logo"><span class="logo-icon">P</span>PMP</div>
     <div class="nav-section">Workspace</div>
     <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="icon">📊</span>Dashboard</button>
     <button class="nav-item" onclick="showPage('kanban')" id="nav-kanban"><span class="icon">🗂</span>Kanban Board</button>
@@ -73,9 +73,9 @@
       <div class="page-header"><div class="page-title">Dashboard <span>Overview</span></div></div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Tasks</div><div class="stat-value" id="stat-total">—</div></div>
-        <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">In Progress</div><div class="stat-value" id="stat-inprogress" style="color:var(--accent)">—</div></div>
-        <div class="stat-card" style="--c:var(--accent3)"><div class="stat-label">Done</div><div class="stat-value" id="stat-done" style="color:var(--accent3)">—</div></div>
-        <div class="stat-card" style="--c:var(--accent2)"><div class="stat-label">Overdue</div><div class="stat-value" id="stat-overdue" style="color:var(--accent2)">—</div></div>
+        <div class="stat-card" style="--c:#2563eb"><div class="stat-label">In Progress</div><div class="stat-value" id="stat-inprogress" style="color:#2563eb">—</div></div>
+        <div class="stat-card" style="--c:#16a34a"><div class="stat-label">Done</div><div class="stat-value" id="stat-done" style="color:#16a34a">—</div></div>
+        <div class="stat-card" style="--c:#dc2626"><div class="stat-label">Overdue</div><div class="stat-value" id="stat-overdue" style="color:#dc2626">—</div></div>
       </div>
       <div class="recent-section-title">Recent Tasks</div>
       <div id="recent-tasks"></div>
