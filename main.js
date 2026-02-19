@@ -24,6 +24,7 @@ const db = getFirestore(app);
 let currentUser = null;
 let currentUserData = null;
 let editingTaskId = null;
+let selectedUserFilter = null; // when superadmin selects a specific user to view
 
 const COLS = [
   { id: "backlog", label: "Backlog", emoji: "\u{1F4DD}" },
@@ -140,6 +141,10 @@ function setupRoleUI() {
   document.getElementById("nav-users").style.display = isSuperAdmin ? "" : "none";
   document.getElementById("nav-createtask").style.display = isAdmin ? "" : "none";
   document.getElementById("kb-create-btn").style.display = isAdmin ? "" : "none";
+  // show/hide super-admin user filter control
+  const sc = document.getElementById("super-select-container");
+  if (sc) sc.style.display = isSuperAdmin ? "" : "none";
+  if (isSuperAdmin) populateSuperSelect();
 }
 
 window.showPage = (page) => {
@@ -172,8 +177,36 @@ async function getUsers() {
 
 function visibleTasks(tasks) {
   const r = currentUserData.role;
-  if (r === "superadmin" || r === "admin") return tasks;
+  if (r === "superadmin") {
+    if (selectedUserFilter) {
+      if (selectedUserFilter === "unassigned") return tasks.filter((t) => !t.assignedTo);
+      return tasks.filter((t) => t.assignedTo === selectedUserFilter);
+    }
+    return tasks;
+  }
+  if (r === "admin") return tasks;
   return tasks.filter((t) => t.assignedTo === currentUser.uid);
+}
+
+window.onSuperSelectChange = (val) => {
+  selectedUserFilter = val || null;
+  renderKanban();
+  loadDashboard();
+};
+
+async function populateSuperSelect() {
+  const sels = Array.from(document.querySelectorAll('.super-select'));
+  if (!sels.length) return;
+  const users = await getUsers();
+  const opts = '<option value="">All users</option>' +
+    '<option value="unassigned">Unassigned</option>' +
+    users.map(u => `<option value="${u.uid}">${u.name} (${u.role})</option>`).join("");
+  sels.forEach(s => (s.innerHTML = opts));
+  // show containers if needed
+  sels.forEach(s => {
+    const c = s.closest('.super-select-container');
+    if (c) c.style.display = currentUserData && currentUserData.role === 'superadmin' ? '' : 'none';
+  });
 }
 
 function sLabel(s) {

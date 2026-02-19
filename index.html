@@ -71,6 +71,12 @@
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="page-header"><div class="page-title">Dashboard <span>Overview</span></div></div>
+        <div id="super-select-container" class="super-select-container" style="display:none;margin:10px 0 0 0;">
+          <label class="super-select-label">View tasks for:</label>
+          <select id="super-select" class="super-select" onchange="onSuperSelectChange(this.value)">
+            <option value="">All users</option>
+          </select>
+        </div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Tasks</div><div class="stat-value" id="stat-total">—</div></div>
         <div class="stat-card" style="--c:#2563eb"><div class="stat-label">In Progress</div><div class="stat-value" id="stat-inprogress" style="color:#2563eb">—</div></div>
@@ -84,7 +90,15 @@
     <!-- KANBAN -->
     <div class="page" id="page-kanban">
       <div class="page-header">
-        <div class="page-title">Kanban <span>Board</span></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="page-title">Kanban <span>Board</span></div>
+          <div id="super-select-container-kanban" class="super-select-container" style="display:none;">
+            <label class="super-select-label">View tasks for:</label>
+            <select class="super-select" onchange="onSuperSelectChange(this.value)">
+              <option value="">All users</option>
+            </select>
+          </div>
+        </div>
         <button class="btn-submit" onclick="openCreateTask()" id="kb-create-btn" style="display:none;">+ New Task</button>
       </div>
       <div class="kanban-board" id="kanban-board"></div>
