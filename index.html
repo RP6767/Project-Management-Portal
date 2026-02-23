@@ -3,134 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Management Portal (PMP)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PMP — Project Management Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loading-screen">
-  <div class="spinner-big"></div>
-  <div class="loading-text">Connecting to Firebase...</div>
+  <div class="loading-inner">
+    <div class="loading-logo"><span>P</span>MP</div>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+    <div class="loading-text">Initializing workspace...</div>
+  </div>
 </div>
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">Project Management Portal</div>
-    <div class="auth-subtitle">Streamlined task management for your team</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">P</div>
+      <span>PMP</span>
     </div>
-    <div id="login-form">
-      <div class="field-group"><label>Email</label><input type="email" id="login-email" placeholder="you@company.com"></div>
-      <div class="field-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="auth-hero">
+      <h1>Build.<br>Ship.<br>Track.</h1>
+      <p>A unified workspace for ambitious teams to manage projects with clarity and speed.</p>
     </div>
-    <div id="register-form" style="display:none;">
-      <div class="field-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Rahul Sharma"></div>
-      <div class="field-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@company.com"></div>
-      <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="Min. 6 characters"></div>
-      <button class="btn-primary" onclick="doRegister()">Create Account</button>
-      <div class="auth-footer-note">
-        New accounts start as <strong>Team Member / Intern</strong>.<br>Your admin can promote your role after you sign up.
+    <div class="auth-features">
+      <div class="auth-feat"><span class="feat-dot"></span>Real-time Kanban Board</div>
+      <div class="auth-feat"><span class="feat-dot"></span>Smart Task Assignments</div>
+      <div class="auth-feat"><span class="feat-dot"></span>Team Chat & Mentions</div>
+      <div class="auth-feat"><span class="feat-dot"></span>Daily Progress Logs</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-box-title">Welcome back</div>
+      <div class="auth-box-sub">Sign in to your workspace</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
       </div>
+      <div id="login-form">
+        <div class="field-group"><label>Email address</label><input type="email" id="login-email" placeholder="you@company.com"></div>
+        <div class="field-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+      </div>
+      <div id="register-form" style="display:none;">
+        <div class="field-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Rahul Sharma"></div>
+        <div class="field-group"><label>Email address</label><input type="email" id="reg-email" placeholder="you@company.com"></div>
+        <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="Min. 6 characters"></div>
+        <button class="btn-primary" onclick="doRegister()">Create Account →</button>
+        <div class="auth-footer-note">New accounts start as <strong>Team Member</strong>. Your admin can promote your role after signup.</div>
+      </div>
+      <div class="auth-error" id="auth-error"></div>
     </div>
-    <div class="auth-error" id="auth-error"></div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app-screen">
   <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-logo"><span class="logo-icon">P</span>PMP</div>
-    <div class="nav-section">Workspace</div>
-    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="icon">📊</span>Dashboard</button>
-    <button class="nav-item" onclick="showPage('kanban')" id="nav-kanban"><span class="icon">🗂</span>Kanban Board</button>
-    <button class="nav-item" onclick="showPage('mytasks')" id="nav-mytasks"><span class="icon">✅</span>My Tasks</button>
-    <div class="nav-section" id="admin-section" style="display:none;">Admin</div>
-    <button class="nav-item" onclick="showPage('users')" id="nav-users" style="display:none;"><span class="icon">👥</span>Users</button>
-    <button class="nav-item" onclick="openCreateTask()" id="nav-createtask" style="display:none;"><span class="icon">＋</span>Create Task</button>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">P</div>
+      <span class="sidebar-logo-text">PMP</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Workspace</div>
+      <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('kanban')" id="nav-kanban">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+        Kanban Board
+      </button>
+      <button class="nav-item" onclick="showPage('mytasks')" id="nav-mytasks">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        My Tasks
+      </button>
+      <button class="nav-item chat-nav-btn" onclick="openChatPanel()" id="nav-chat">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Team Chat
+        <span class="chat-unread-badge" id="chat-unread-badge" style="display:none;">0</span>
+      </button>
+    </nav>
+    <nav class="sidebar-nav" id="admin-section" style="display:none;">
+      <div class="nav-group-label">Admin</div>
+      <button class="nav-item" onclick="showPage('users')" id="nav-users" style="display:none;">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Users
+      </button>
+      <button class="nav-item" onclick="openCreateTask()" id="nav-createtask" style="display:none;">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Create Task
+      </button>
+    </nav>
     <div class="sidebar-bottom">
       <div class="user-chip">
         <div class="user-avatar" id="sidebar-avatar">?</div>
-        <div style="overflow:hidden;">
+        <div class="user-chip-info">
           <div class="user-name" id="sidebar-name">—</div>
           <div class="user-role" id="sidebar-role">—</div>
         </div>
       </div>
-      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
-  </div>
+  </aside>
 
   <!-- MAIN -->
-  <div class="main">
+  <main class="main">
+    <!-- NOTIFICATION BELL -->
+    <div class="topbar">
+      <div class="topbar-breadcrumb" id="topbar-breadcrumb">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-count" id="notif-count" style="display:none;">0</span>
+        </button>
+        <div class="notif-panel" id="notif-panel" style="display:none;">
+          <div class="notif-panel-header">
+            <span>Notifications</span>
+            <button onclick="clearNotifications()">Clear all</button>
+          </div>
+          <div class="notif-list" id="notif-list">
+            <div class="notif-empty">No notifications yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div class="page-header"><div class="page-title">Dashboard <span>Overview</span></div></div>
-        <div id="super-select-container" class="super-select-container" style="display:none;margin:10px 0 0 0;">
-          <label class="super-select-label">View tasks for:</label>
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Good morning — here's what's happening</div>
+        </div>
+        <div id="super-select-container" style="display:none;">
+          <label class="super-select-label">Viewing:</label>
           <select id="super-select" class="super-select" onchange="onSuperSelectChange(this.value)">
             <option value="">All users</option>
           </select>
         </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total Tasks</div><div class="stat-value" id="stat-total">—</div></div>
-        <div class="stat-card" style="--c:#2563eb"><div class="stat-label">In Progress</div><div class="stat-value" id="stat-inprogress" style="color:#2563eb">—</div></div>
-        <div class="stat-card" style="--c:#16a34a"><div class="stat-label">Done</div><div class="stat-value" id="stat-done" style="color:#16a34a">—</div></div>
-        <div class="stat-card" style="--c:#dc2626"><div class="stat-label">Overdue</div><div class="stat-value" id="stat-overdue" style="color:#dc2626">—</div></div>
       </div>
-      <div class="recent-section-title">Recent Tasks</div>
+      <div class="stats-grid">
+        <div class="stat-card stat-total"><div class="stat-icon">📋</div><div class="stat-label">Total Tasks</div><div class="stat-value" id="stat-total">—</div></div>
+        <div class="stat-card stat-inprogress"><div class="stat-icon">🔄</div><div class="stat-label">In Progress</div><div class="stat-value" id="stat-inprogress">—</div></div>
+        <div class="stat-card stat-done"><div class="stat-icon">✅</div><div class="stat-label">Completed</div><div class="stat-value" id="stat-done">—</div></div>
+        <div class="stat-card stat-overdue"><div class="stat-icon">⚠️</div><div class="stat-label">Overdue</div><div class="stat-value" id="stat-overdue">—</div></div>
+      </div>
+      <div class="section-header"><div class="section-title">Recent Activity</div></div>
       <div id="recent-tasks"></div>
     </div>
 
     <!-- KANBAN -->
     <div class="page" id="page-kanban">
       <div class="page-header">
+        <div>
+          <div class="page-title">Kanban Board</div>
+          <div class="page-subtitle">Drag and drop tasks across stages</div>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="page-title">Kanban <span>Board</span></div>
-          <div id="super-select-container-kanban" class="super-select-container" style="display:none;">
-            <label class="super-select-label">View tasks for:</label>
+          <div id="super-select-container-kanban" style="display:none;">
+            <label class="super-select-label">Viewing:</label>
             <select class="super-select" onchange="onSuperSelectChange(this.value)">
               <option value="">All users</option>
             </select>
           </div>
+          <button class="btn-action" onclick="openCreateTask()" id="kb-create-btn" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Task
+          </button>
         </div>
-        <button class="btn-submit" onclick="openCreateTask()" id="kb-create-btn" style="display:none;">+ New Task</button>
       </div>
       <div class="kanban-board" id="kanban-board"></div>
     </div>
 
     <!-- MY TASKS -->
     <div class="page" id="page-mytasks">
-      <div class="page-header"><div class="page-title">My <span>Tasks</span></div></div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">My Tasks</div>
+          <div class="page-subtitle">Tasks assigned to you</div>
+        </div>
+      </div>
       <div id="my-tasks-list"></div>
     </div>
 
     <!-- USERS -->
     <div class="page" id="page-users">
       <div class="page-header">
-        <div class="page-title">User <span>Management</span></div>
-        <button class="btn-submit" onclick="openCreateUser()">+ Add User</button>
+        <div>
+          <div class="page-title">User Management</div>
+          <div class="page-subtitle">Manage team members and their roles</div>
+        </div>
+        <button class="btn-action" onclick="openCreateUser()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Member
+        </button>
       </div>
       <div class="users-table">
-        <div class="table-header"><div>Name</div><div>Email</div><div>Role</div><div>Actions</div></div>
+        <div class="table-header"><div>Member</div><div>Email</div><div>Role</div><div>Actions</div></div>
         <div id="users-list"></div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- TASK MODAL -->
 <div class="modal-overlay" id="task-modal">
   <div class="modal">
-    <div class="modal-title" id="task-modal-title">Create Task</div>
-    <div class="field-group"><label>Title *</label><input type="text" id="task-title" placeholder="Build login page..."></div>
-    <div class="field-group"><label>Description</label><textarea id="task-desc" placeholder="Details..."></textarea></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="modal-header">
+      <div class="modal-title" id="task-modal-title">Create Task</div>
+      <button class="modal-close" onclick="closeModal('task-modal')">✕</button>
+    </div>
+    <div class="field-group"><label>Title <span class="req">*</span></label><input type="text" id="task-title" placeholder="e.g. Build authentication flow..."></div>
+    <div class="field-group"><label>Description</label><textarea id="task-desc" placeholder="Describe the task, acceptance criteria, or any relevant context..."></textarea></div>
+    <div class="field-row">
       <div class="field-group"><label>Priority</label><select id="task-priority"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select></div>
       <div class="field-group"><label>Due Date</label><input type="date" id="task-due"></div>
     </div>
@@ -145,10 +240,10 @@
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detail-modal">
-  <div class="modal">
-    <div class="detail-header">
-      <div class="modal-title" id="detail-title" style="margin:0;"></div>
-      <button class="detail-close-btn" onclick="closeModal('detail-modal')">✕</button>
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-title"></div>
+      <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
     </div>
     <div id="detail-body"></div>
   </div>
@@ -157,19 +252,135 @@
 <!-- USER MODAL -->
 <div class="modal-overlay" id="user-modal">
   <div class="modal">
-    <div class="modal-title">Add New User</div>
+    <div class="modal-header">
+      <div class="modal-title">Add Team Member</div>
+      <button class="modal-close" onclick="closeModal('user-modal')">✕</button>
+    </div>
     <div class="field-group"><label>Full Name</label><input type="text" id="u-name" placeholder="Priya Mehta"></div>
-    <div class="field-group"><label>Email</label><input type="email" id="u-email" placeholder="priya@company.com"></div>
+    <div class="field-group"><label>Email address</label><input type="email" id="u-email" placeholder="priya@company.com"></div>
     <div class="field-group"><label>Password</label><input type="password" id="u-password" placeholder="Min. 6 characters"></div>
-    <div class="field-group"><label>Role</label><select id="u-role"><option value="intern">Intern</option><option value="admin">Admin</option><option value="superadmin">Super Admin</option></select></div>
+    <div class="field-group"><label>Role</label>
+      <select id="u-role">
+        <option value="intern">Team Member / Intern</option>
+        <option value="admin">Admin</option>
+        <option value="superadmin">Super Admin</option>
+      </select>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('user-modal')">Cancel</button>
-      <button class="btn-submit" onclick="saveUser()">Create User</button>
+      <button class="btn-submit" onclick="saveUser()">Create Member</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- CHAT PANEL -->
+<div id="chat-panel" class="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div>
+        <div class="chat-title">Team Chat</div>
+        <div class="chat-subtitle" id="chat-subtitle">Group &amp; Direct Messages</div>
+      </div>
+    </div>
+    <button class="chat-close" onclick="closeChatPanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="chat-body">
+    <!-- LEFT SIDEBAR -->
+    <div class="chat-sidebar">
+      <!-- TABS: Group / DMs -->
+      <div class="chat-tabs">
+        <button class="chat-tab active" id="tab-group" onclick="switchChatTab('group')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Group
+        </button>
+        <button class="chat-tab" id="tab-dm" onclick="switchChatTab('dm')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Direct
+        </button>
+      </div>
+
+      <!-- GROUP LIST -->
+      <div id="chat-sidebar-group">
+        <div class="chat-sidebar-section">
+          <span>Channels</span>
+          <button class="chat-sidebar-add" id="btn-create-group" onclick="openCreateGroup()" title="New group">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="chat-members-list" id="chat-group-list"></div>
+      </div>
+
+      <!-- DM LIST -->
+      <div id="chat-sidebar-dm" style="display:none;">
+        <div class="chat-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input placeholder="Search members..." id="chat-search-input" oninput="filterChatUsers(this.value)">
+        </div>
+        <div class="chat-members-list" id="chat-users"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CHAT AREA -->
+    <div class="chat-main-area">
+      <div class="chat-empty-state" id="chat-empty-state">
+        <div class="chat-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="chat-empty-title">Start a conversation</div>
+        <div class="chat-empty-sub">Select a channel or team member to begin chatting</div>
+      </div>
+      <div class="chat-window" id="chat-window" style="display:none;">
+        <div class="chat-window-header" id="chat-window-header"></div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-composer">
+          <div class="mention-dropdown" id="mention-dropdown" style="display:none;"></div>
+          <div class="composer-row">
+            <div class="composer-input-wrap">
+              <input id="chat-input" class="composer-input" placeholder="Type a message… use @name to mention" onkeydown="handleChatKeydown(event)" oninput="handleMentionTrigger(event)">
+            </div>
+            <button class="composer-send" onclick="sendChatMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="composer-hint">Press <kbd>Enter</kbd> to send · <kbd>@</kbd> to mention</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="group-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create Group Channel</div>
+      <button class="modal-close" onclick="closeModal('group-modal')">✕</button>
+    </div>
+    <div class="field-group">
+      <label>Channel Name <span class="req">*</span></label>
+      <input type="text" id="group-name" placeholder="e.g. design-team, backend, general">
+    </div>
+    <div class="field-group">
+      <label>Description</label>
+      <input type="text" id="group-desc" placeholder="What's this channel for?">
+    </div>
+    <div class="field-group">
+      <label>Add Members</label>
+      <div class="group-member-picker" id="group-member-picker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('group-modal')">Cancel</button>
+      <button class="btn-submit" onclick="saveGroup()">Create Channel</button>
+    </div>
+  </div>
+</div>
 
 <script type="module" src="main.js"></script>
 </body>
