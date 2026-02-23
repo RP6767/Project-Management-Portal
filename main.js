@@ -633,60 +633,47 @@ document.addEventListener("click", (e) => {
 });
 
 // ── NOTIFICATION LISTENER ──
-// Listens to /notifications/{uid}/items — only the current user can read their own
 function startGlobalMentionListener() {
   const notifRef = collection(db, 'notifications', currentUser.uid, 'items');
-  const q = query(notifRef, orderBy('createdAt', 'desc'), limit(20));
+  // No orderBy = no index required, works immediately
+  const seenIds = new Set(localNotifications.map(n => n.id));
   let initialized = false;
 
-  onSnapshot(q, (snap) => {
-    if (!initialized) {
-      snap.docs.forEach(d => {
-        const n = { id: d.id, ...d.data() };
-        const exists = localNotifications.find(x => x.id === d.id);
-        if (!exists) {
-          localNotifications.push({
-            id: d.id,
-            title: n.title,
-            body: n.body,
-            type: n.type || 'mention',
-            read: n.read || false,
-            time: n.createdAt
-              ? (n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt)).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-              : ''
-          });
-        }
-      });
-      localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
-      updateNotifBadge();
-      initialized = true;
-      return;
-    }
-
+  onSnapshot(notifRef, (snap) => {
     snap.docChanges().forEach(change => {
       if (change.type === 'added') {
         const n = { id: change.doc.id, ...change.doc.data() };
-        const exists = localNotifications.find(x => x.id === change.doc.id);
-        if (!exists) {
-          const notif = {
-            id: change.doc.id,
-            title: n.title,
-            body: n.body,
-            type: n.type || 'mention',
-            read: false,
-            time: n.createdAt
-              ? (n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt)).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-              : ''
-          };
-          localNotifications.push(notif);
-          localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
-          updateNotifBadge();
-          showToast(`🔔 ${n.title}`, 'success');
+        if (seenIds.has(n.id)) return;
+        seenIds.add(n.id);
+
+        const timeStr = n.createdAt
+          ? (n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt))
+              .toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+          : new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        const notif = {
+          id: n.id,
+          title: n.title || 'New notification',
+          body: n.body || '',
+          type: n.type || 'mention',
+          read: initialized ? false : true, // older notifs start as read
+          time: timeStr
+        };
+
+        localNotifications.push(notif);
+        if (localNotifications.length > 50) localNotifications = localNotifications.slice(-50);
+        localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
+        updateNotifBadge();
+
+        // Only toast for truly new ones (after init)
+        if (initialized) {
+          showToast(`🔔 ${notif.title}`, 'success');
         }
       }
     });
+    initialized = true;
   }, (err) => {
-    console.warn('Notification listener error:', err.message);
+    console.warn('Notification listener error:', err.code, err.message);
   });
 }
 
@@ -1011,17 +998,20 @@ window.sendChatMessage = async () => {
   const text = input.value.trim();
   if (!text || !currentChatId) return;
 
-  // Extract mentions
-  const mentionedNames = [];
-  const mentionRegex = /@([\w\s]+?)(?=\s|$|@)/g;
-  let match;
-  while ((match = mentionRegex.exec(text)) !== null) {
-    mentionedNames.push(match[1].trim().toLowerCase());
+  // Extract mentions - match @Name or @First Last patterns
+  const mentionedUids = [];
+  // Sort users longest name first to match "First Last" before "First"
+  const sortedUsers = [...allUsers].sort((a, b) => b.name.length - a.name.length);
+  for (const u of sortedUsers) {
+    if (u.uid === currentUser.uid) continue;
+    // Check if @UserName appears in text (case-insensitive)
+    const escapedName = u.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const mentionPattern = new RegExp('@' + escapedName + '(?:\\s|$|@|,|!|\\?)', 'i');
+    if (mentionPattern.test(text) && !mentionedUids.includes(u.uid)) {
+      mentionedUids.push(u.uid);
+    }
   }
-
-  const mentionedUids = allUsers
-    .filter(u => mentionedNames.some(n => u.name.toLowerCase() === n))
-    .map(u => u.uid);
+  const mentionNames = allUsers.filter(u => mentionedUids.includes(u.uid)).map(u => u.name);
 
   try {
     await addDoc(collection(db, 'messages'), {
@@ -1030,27 +1020,31 @@ window.sendChatMessage = async () => {
       fromName: currentUserData.name,
       text,
       mentions: mentionedUids,
-      mentionNames: mentionedNames,
+      mentionNames: mentionNames,
       createdAt: serverTimestamp(),
     });
 
     // Write a notification doc for each mentioned user
-    // Firestore rules allow users to write to any notifications sub-collection
+    if (mentionedUids.length > 0) {
+      console.log('[PMP] Writing notifications for UIDs:', mentionedUids);
+    }
     for (const uid of mentionedUids) {
-      if (uid === currentUser.uid) continue; // don't notify yourself
-      const chatLabel = currentChatType === 'group'
-        ? `in a channel`
-        : `in a direct message`;
-      await addDoc(collection(db, 'notifications', uid, 'items'), {
-        title: `${currentUserData.name} mentioned you`,
-        body: text.substring(0, 100),
-        type: 'mention',
-        fromUid: currentUser.uid,
-        fromName: currentUserData.name,
-        chatId: currentChatId,
-        read: false,
-        createdAt: serverTimestamp(),
-      });
+      if (uid === currentUser.uid) continue;
+      try {
+        await addDoc(collection(db, 'notifications', uid, 'items'), {
+          title: `${currentUserData.name} mentioned you`,
+          body: text.substring(0, 100),
+          type: 'mention',
+          fromUid: currentUser.uid,
+          fromName: currentUserData.name,
+          chatId: currentChatId,
+          read: false,
+          createdAt: serverTimestamp(),
+        });
+        console.log('[PMP] ✅ Notification written for:', uid);
+      } catch (notifErr) {
+        console.error('[PMP] ❌ Notification write failed for', uid, ':', notifErr.code, notifErr.message);
+      }
     }
 
     input.value = '';
