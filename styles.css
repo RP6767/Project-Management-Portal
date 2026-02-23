@@ -33,8 +33,8 @@
   --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
   --shadow-xl: 0 24px 64px rgba(0,0,0,0.16);
   --transition: 0.15s ease;
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Syne', 'Trebuchet MS', 'Arial Black', sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2018,4 +2018,49 @@ body {
   .chat-panel { right: 0; bottom: 0; left: 0; max-width: 100%; width: 100%; border-radius: 0; }
   .table-header, .table-row { grid-template-columns: 1.5fr 1fr 1fr; }
   .table-header div:nth-child(2), .table-row div:nth-child(2) { display: none; }
+}
+
+/* ── GITHUB PAGES SVG FIX ── */
+/* Hard-clamp all SVGs that don't have explicit size to prevent blowup */
+svg {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Nav icons — explicit override so CSS always wins over HTML attributes */
+.nav-icon {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  min-height: 17px !important;
+  flex-shrink: 0 !important;
+}
+
+.nav-item svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+/* Stat icon emojis shouldn't inherit weird sizes */
+.stat-icon { line-height: 1; display: block; }
+
+/* Font fallback stack — works even if Google Fonts blocked */
+:root {
+  --font-display: 'Syne', 'Trebuchet MS', 'Arial Black', sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Topbar notification bell SVG */
+.notif-btn svg,
+.btn-action svg,
+.btn-logout svg,
+.chat-close svg,
+.chat-header-icon svg,
+.modal-close svg,
+.composer-send svg,
+.chat-search svg,
+.chat-sidebar-add svg,
+.chat-tab svg {
+  display: block;
+  flex-shrink: 0;
 }
