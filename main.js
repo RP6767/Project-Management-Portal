@@ -632,23 +632,61 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ── MENTION LISTENER (global) ──
+// ── NOTIFICATION LISTENER ──
+// Listens to /notifications/{uid}/items — only the current user can read their own
 function startGlobalMentionListener() {
-  // Listen for new messages that mention the current user
-  const myName = currentUserData.name.toLowerCase();
-  const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(1));
+  const notifRef = collection(db, 'notifications', currentUser.uid, 'items');
+  const q = query(notifRef, orderBy('createdAt', 'desc'), limit(20));
   let initialized = false;
+
   onSnapshot(q, (snap) => {
-    if (!initialized) { initialized = true; return; } // skip initial load
+    if (!initialized) {
+      snap.docs.forEach(d => {
+        const n = { id: d.id, ...d.data() };
+        const exists = localNotifications.find(x => x.id === d.id);
+        if (!exists) {
+          localNotifications.push({
+            id: d.id,
+            title: n.title,
+            body: n.body,
+            type: n.type || 'mention',
+            read: n.read || false,
+            time: n.createdAt
+              ? (n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt)).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+              : ''
+          });
+        }
+      });
+      localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
+      updateNotifBadge();
+      initialized = true;
+      return;
+    }
+
     snap.docChanges().forEach(change => {
       if (change.type === 'added') {
-        const msg = { id: change.doc.id, ...change.doc.data() };
-        if (msg.fromUid !== currentUser.uid && msg.mentions && msg.mentions.includes(currentUser.uid)) {
-          addNotification(`${msg.fromName} mentioned you`, msg.text.substring(0, 80), 'mention');
-          showToast(`💬 ${msg.fromName} mentioned you!`, 'success');
+        const n = { id: change.doc.id, ...change.doc.data() };
+        const exists = localNotifications.find(x => x.id === change.doc.id);
+        if (!exists) {
+          const notif = {
+            id: change.doc.id,
+            title: n.title,
+            body: n.body,
+            type: n.type || 'mention',
+            read: false,
+            time: n.createdAt
+              ? (n.createdAt.toDate ? n.createdAt.toDate() : new Date(n.createdAt)).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+              : ''
+          };
+          localNotifications.push(notif);
+          localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
+          updateNotifBadge();
+          showToast(`🔔 ${n.title}`, 'success');
         }
       }
     });
+  }, (err) => {
+    console.warn('Notification listener error:', err.message);
   });
 }
 
@@ -995,6 +1033,26 @@ window.sendChatMessage = async () => {
       mentionNames: mentionedNames,
       createdAt: serverTimestamp(),
     });
+
+    // Write a notification doc for each mentioned user
+    // Firestore rules allow users to write to any notifications sub-collection
+    for (const uid of mentionedUids) {
+      if (uid === currentUser.uid) continue; // don't notify yourself
+      const chatLabel = currentChatType === 'group'
+        ? `in a channel`
+        : `in a direct message`;
+      await addDoc(collection(db, 'notifications', uid, 'items'), {
+        title: `${currentUserData.name} mentioned you`,
+        body: text.substring(0, 100),
+        type: 'mention',
+        fromUid: currentUser.uid,
+        fromName: currentUserData.name,
+        chatId: currentChatId,
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+    }
+
     input.value = '';
     closeMentionDropdown();
   } catch (e) {
