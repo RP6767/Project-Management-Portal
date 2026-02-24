@@ -17,7 +17,7 @@ async function registerServiceWorker() {
     return null;
   }
   try {
-    const reg = await navigator.serviceWorker.register('./sw.js', { scope: '/' });
+    const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
     swRegistration = reg;
     console.log('[PMP Notif] ✅ Service Worker registered:', reg.scope);
 
