@@ -80,6 +80,7 @@ function enterApp() {
   showPage("dashboard");
   updateNotifBadge();
   startGlobalMentionListener();
+  initPushNotifications();
 }
 
 // ── AUTH ──
@@ -621,6 +622,7 @@ window.toggleNotifPanel = () => {
     localNotifications.forEach(n => { n.read = true; });
     localStorage.setItem('pmp_notifs', JSON.stringify(localNotifications));
     updateNotifBadge();
+    injectNotifSettingsButton(); // ← ADD THIS LINE
   }
 };
 
@@ -667,8 +669,15 @@ function startGlobalMentionListener() {
 
         // Only toast for truly new ones (after init)
         if (initialized) {
-          showToast(`🔔 ${notif.title}`, 'success');
-        }
+        showToast(`🔔 ${notif.title}`, 'success');
+        // ↓ ADD THIS — fires real OS notification when tab is in background
+        sendSystemNotification(
+          notif.title,
+          notif.body,
+          n.chatId || null,
+          n.fromName || null
+        );
+      }
       }
     });
     initialized = true;
